@@ -94,10 +94,10 @@ class Toprow:
                 if self.is_compact:
                     self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
                 else:
-                    with gr.Column(scale=6, elem_id=f"{self.id_part}_neg_prompt_container"):
+                    with gr.Column(scale=8, min_width=0, elem_id=f"{self.id_part}_neg_prompt_container"):
                         self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
 
-                    with gr.Column(scale=2, elem_id=f"{self.id_part}_neg_prompt_generate_wrap"):
+                    with gr.Column(scale=1, min_width=224, elem_id=f"{self.id_part}_neg_prompt_generate_wrap"):
                         self.create_submit_box()
 
         self.prompt_img.change(
