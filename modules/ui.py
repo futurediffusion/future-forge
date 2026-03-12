@@ -218,15 +218,9 @@ def create_ui():
 
         with gr.Tab("Future", id="txt2img_future"):
             with ResizeHandleRow(equal_height=False):
-                with gr.Column(variant="compact", elem_id="txt2img_future_settings"):
-                    with FormRow(elem_id="txt2img_future_prompt_row"):
-                        future_prompt = gr.Textbox(label="Prompt", lines=3, elem_id="txt2img_future_prompt", elem_classes=["prompt"])
-                        future_generate = gr.Button("Generate", variant="primary", elem_id="txt2img_future_generate")
-                        _ = (future_prompt, future_generate)
-
-                    with gr.Accordion("Advanced", open=False):
-                        with FormRow():
-                            gr.Markdown("Future controls will be added here.")
+                with gr.Column(variant="compact", elem_id="txt2img_future_settings") as future_settings_column:
+                    with gr.Accordion("Advanced", open=False, elem_id="txt2img_future_advanced") as future_advanced_accordion:
+                        pass
 
                 output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
@@ -234,40 +228,48 @@ def create_ui():
             with ExitStack() as stack:
                 if shared.opts.txt2img_settings_accordion:
                     stack.enter_context(gr.Accordion("Open for Settings", open=False))
-                stack.enter_context(gr.Column(variant="compact", elem_id="txt2img_settings"))
+                txt2img_settings_column = stack.enter_context(gr.Column(variant="compact", elem_id="txt2img_settings"))
 
                 scripts.scripts_txt2img.prepare_ui()
 
                 for category in ordered_ui_categories():
-                    if category == "prompt":
-                        toprow.create_inline_toprow_prompts()
+                    if category in {"prompt", "dimensions", "cfg"}:
+                        category_parent = future_settings_column
+                    elif category in {"accordions", "batch", "override_settings", "scripts"}:
+                        category_parent = future_advanced_accordion
+                    else:
+                        category_parent = txt2img_settings_column
 
-                    elif category == "dimensions":
-                        with FormRow():
-                            with gr.Column(elem_id="txt2img_column_size", scale=4):
-                                width = gr.Slider(minimum=64, maximum=2048, step=64, label="Width", value=1024, elem_id="txt2img_width")
-                                height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height", value=1024, elem_id="txt2img_height")
+                    with category_parent:
+                        if category == "prompt":
+                            toprow.create_inline_toprow_prompts()
 
-                            with gr.Column(elem_id="txt2img_dimensions_row", scale=1, elem_classes="dimensions-tools"):
-                                res_switch_btn = ToolButton(value=switch_values_symbol, elem_id="txt2img_res_switch_btn", tooltip="Switch width/height")
+                        elif category == "dimensions":
+                            with FormRow():
+                                with gr.Column(elem_id="txt2img_column_size", scale=4):
+                                    width = gr.Slider(minimum=64, maximum=2048, step=64, label="Width", value=1024, elem_id="txt2img_width")
+                                    height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height", value=1024, elem_id="txt2img_height")
 
-                            if opts.dimensions_and_batch_together:
-                                with gr.Column(elem_id="txt2img_column_batch"):
-                                    batch_count = gr.Slider(minimum=1, maximum=128, step=1, label="Batch Count", value=1, elem_id="txt2img_batch_count")
-                                    batch_size = gr.Slider(minimum=1, maximum=8, step=1, label="Batch Size", value=1, elem_id="txt2img_batch_size")
+                                with gr.Column(elem_id="txt2img_dimensions_row", scale=1, elem_classes="dimensions-tools"):
+                                    res_switch_btn = ToolButton(value=switch_values_symbol, elem_id="txt2img_res_switch_btn", tooltip="Switch width/height")
 
-                    elif category == "cfg":
-                        with gr.Row():
-                            distilled_cfg_scale = gr.Slider(minimum=1.0, maximum=24.0, step=0.5, label="Distilled CFG Scale", value=3.0, elem_id="txt2img_distilled_cfg_scale", scale=4)
-                            cfg_scale = gr.Slider(minimum=1.0, maximum=24.0, step=0.5, label="CFG Scale", value=6.0, elem_id="txt2img_cfg_scale", scale=4)
-                            cfg_scale.change(lambda v: gr.update(interactive=(v > 1.0)), inputs=[cfg_scale], outputs=[toprow.negative_prompt], queue=False, show_progress=False)
-                            scripts.scripts_txt2img.setup_ui_for_section(category)
+                                if opts.dimensions_and_batch_together:
+                                    with gr.Column(elem_id="txt2img_column_batch"):
+                                        batch_count = gr.Slider(minimum=1, maximum=128, step=1, label="Batch Count", value=1, elem_id="txt2img_batch_count")
+                                        batch_size = gr.Slider(minimum=1, maximum=8, step=1, label="Batch Size", value=1, elem_id="txt2img_batch_size")
 
-                    elif category == "accordions":
-                        with gr.Row(elem_id="txt2img_accordions", elem_classes="accordions"):
-                            with InputAccordion(False, label="Hires. fix", elem_id="txt2img_hr") as enable_hr:
-                                with enable_hr.extra():
-                                    hr_final_resolution = FormHTML(value="", elem_id="txtimg_hr_finalres", label="Upscaled resolution")
+                        elif category == "cfg":
+                            with gr.Row():
+                                distilled_cfg_scale = gr.Slider(minimum=1.0, maximum=24.0, step=0.5, label="Distilled CFG Scale", value=3.0, elem_id="txt2img_distilled_cfg_scale", scale=4)
+                                cfg_scale = gr.Slider(minimum=1.0, maximum=24.0, step=0.5, label="CFG Scale", value=6.0, elem_id="txt2img_cfg_scale", scale=4)
+                                cfg_scale.change(lambda v: gr.update(interactive=(v > 1.0)), inputs=[cfg_scale], outputs=[toprow.negative_prompt], queue=False, show_progress=False)
+                                scripts.scripts_txt2img.setup_ui_for_section(category)
+
+                        elif category == "accordions":
+                            with gr.Row(elem_id="txt2img_accordions", elem_classes="accordions"):
+                                with InputAccordion(False, label="Hires. fix", elem_id="txt2img_hr") as enable_hr:
+                                    with enable_hr.extra():
+                                        hr_final_resolution = FormHTML(value="", elem_id="txtimg_hr_finalres", label="Upscaled resolution")
 
                                 with FormRow(elem_id="txt2img_hires_fix_row1", variant="compact"):
                                     hr_upscaler = gr.Dropdown(label="Upscaler", elem_id="txt2img_hr_upscaler", choices=[*shared.latent_upscale_modes, *[x.name for x in shared.sd_upscalers]], value=shared.latent_upscale_default_mode)
@@ -321,22 +323,22 @@ def create_ui():
 
                             scripts.scripts_txt2img.setup_ui_for_section(category)
 
-                    elif category == "batch":
-                        if not opts.dimensions_and_batch_together:
-                            with FormRow(elem_id="txt2img_column_batch"):
-                                batch_count = gr.Slider(minimum=1, maximum=128, step=1, label="Batch Count", value=1, elem_id="txt2img_batch_count")
-                                batch_size = gr.Slider(minimum=1, maximum=8, step=1, label="Batch Size", value=1, elem_id="txt2img_batch_size")
+                        elif category == "batch":
+                            if not opts.dimensions_and_batch_together:
+                                with FormRow(elem_id="txt2img_column_batch"):
+                                    batch_count = gr.Slider(minimum=1, maximum=128, step=1, label="Batch Count", value=1, elem_id="txt2img_batch_count")
+                                    batch_size = gr.Slider(minimum=1, maximum=8, step=1, label="Batch Size", value=1, elem_id="txt2img_batch_size")
 
-                    elif category == "override_settings":
-                        with FormRow(elem_id="txt2img_override_settings_row") as row:
-                            override_settings = create_override_settings_dropdown("txt2img", row)
+                        elif category == "override_settings":
+                            with FormRow(elem_id="txt2img_override_settings_row") as row:
+                                override_settings = create_override_settings_dropdown("txt2img", row)
 
-                    elif category == "scripts":
-                        with FormGroup(elem_id="txt2img_script_container"):
-                            custom_inputs = scripts.scripts_txt2img.setup_ui()
+                        elif category == "scripts":
+                            with FormGroup(elem_id="txt2img_script_container"):
+                                custom_inputs = scripts.scripts_txt2img.setup_ui()
 
-                    if category not in {"accordions", "cfg"}:
-                        scripts.scripts_txt2img.setup_ui_for_section(category)
+                        if category not in {"accordions", "cfg"}:
+                            scripts.scripts_txt2img.setup_ui_for_section(category)
 
             hr_resolution_preview_inputs = [enable_hr, width, height, hr_scale, hr_resize_x, hr_resize_y]
 
