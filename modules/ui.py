@@ -210,31 +210,41 @@ def create_ui():
     with gr.Blocks(analytics_enabled=False, head=canvas_head) as txt2img_interface:
         toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
 
+        # Feature flag: `opts.txt2img_show_future_tab`.
+        # Default is OFF to preserve the classic Generation-first workflow.
+        show_txt2img_future_tab = getattr(opts, "txt2img_show_future_tab", False)
+
         dummy_component = gr.Textbox(visible=False)
         dummy_component_number = gr.Number(visible=False)
 
         extra_tabs = gr.Tabs(elem_id="txt2img_extra_tabs", elem_classes=["extra-networks"])
         extra_tabs.__enter__()
 
-        with gr.Tab("Future", id="txt2img_future"):
-            with gr.Row(elem_id="txt2img_future_prompt_row", elem_classes=["prompt-row"]):
-                future_prompt = gr.Textbox(
-                    label="Prompt",
-                    elem_id="txt2img_future_prompt",
-                    show_label=False,
-                    lines=3,
-                    placeholder="Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)",
-                    elem_classes=["prompt"],
-                )
-            with gr.Row(elem_id="txt2img_future_generate_box", elem_classes=["generate-box"]):
-                future_submit = gr.Button("Generate", elem_id="txt2img_future_generate", variant="primary", tooltip="Right click generate forever menu")
+        if show_txt2img_future_tab:
+            with gr.Tab("Future", id="txt2img_future"):
+                with gr.Row(elem_id="txt2img_future_prompt_row", elem_classes=["prompt-row"]):
+                    future_prompt = gr.Textbox(
+                        label="Prompt",
+                        elem_id="txt2img_future_prompt",
+                        show_label=False,
+                        lines=3,
+                        placeholder="Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)",
+                        elem_classes=["prompt"],
+                    )
+                with gr.Row(elem_id="txt2img_future_generate_box", elem_classes=["generate-box"]):
+                    future_submit = gr.Button("Generate", elem_id="txt2img_future_generate", variant="primary", tooltip="Right click generate forever menu")
 
-            with ResizeHandleRow(equal_height=False):
-                with gr.Column(variant="compact", elem_id="txt2img_future_settings") as future_settings_column:
-                    with gr.Accordion("Advanced", open=False, elem_id="txt2img_future_advanced") as future_advanced_accordion:
-                        pass
+                with ResizeHandleRow(equal_height=False):
+                    with gr.Column(variant="compact", elem_id="txt2img_future_settings") as future_settings_column:
+                        with gr.Accordion("Advanced", open=False, elem_id="txt2img_future_advanced") as future_advanced_accordion:
+                            pass
 
-                output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
+                    output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
+        else:
+            future_prompt = toprow.prompt
+            future_submit = toprow.submit
+            future_settings_column = None
+            future_advanced_accordion = None
 
         with gr.Tab("Generation", id="txt2img_generation") as txt2img_generation_tab, ResizeHandleRow(equal_height=False):
             with ExitStack() as stack:
@@ -245,9 +255,9 @@ def create_ui():
                 scripts.scripts_txt2img.prepare_ui()
 
                 for category in ordered_ui_categories():
-                    if category == "prompt":
+                    if category == "prompt" and show_txt2img_future_tab:
                         category_parent = future_settings_column
-                    elif category in {"dimensions", "cfg", "batch", "accordions", "override_settings", "scripts"}:
+                    elif category in {"dimensions", "cfg", "batch", "accordions", "override_settings", "scripts"} and show_txt2img_future_tab:
                         category_parent = future_advanced_accordion
                     else:
                         category_parent = txt2img_settings_column
