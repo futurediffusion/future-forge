@@ -358,7 +358,8 @@ input[type="checkbox"].input-accordion-checkbox {
 
 #txt2img_generate_box,
 #img2img_generate_box {
-    justify-content: flex-end;
+    justify-content: flex-start;
+    width: fit-content;
 }
 
 #txt2img_results > #txt2img_generate_box,
@@ -370,7 +371,9 @@ input[type="checkbox"].input-accordion-checkbox {
 
 #txt2img_generate,
 #img2img_generate {
-    margin-left: auto;
+    margin-left: 0;
+    width: fit-content;
+    flex: 0 0 auto;
 }
 
 @media screen and (min-width: 901px) {
@@ -496,6 +499,19 @@ div.toprow-compact-stylerow {
 div.toprow-compact-tools {
     min-width: fit-content !important;
     max-width: fit-content;
+}
+
+.toprow-compact-actions {
+    min-width: fit-content !important;
+    max-width: fit-content;
+}
+
+.toprow-compact-generate-row {
+    margin-top: 0.4em;
+}
+
+.toprow-compact-generate-row > .generate-box {
+    width: fit-content;
 }
 
 /* settings */

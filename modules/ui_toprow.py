@@ -30,6 +30,7 @@ class Toprow:
     ui_styles = None
 
     submit_box = None
+    submit_box_rendered = False
 
     def __init__(self, is_img2img, is_compact=False, id_part=None):
         if id_part is None:
@@ -49,11 +50,11 @@ class Toprow:
         self.create_prompts()
 
         with gr.Column(scale=1, elem_id=f"{self.id_part}_actions_column"):
-            self.create_submit_box()
-
             self.create_tools_row()
 
             self.create_styles_ui()
+
+            self.create_submit_box()
 
     def create_inline_toprow_prompts(self):
         if not self.is_compact:
@@ -64,14 +65,18 @@ class Toprow:
         with gr.Row(elem_classes=["toprow-compact-stylerow"]):
             with gr.Column(elem_classes=["toprow-compact-tools"]):
                 self.create_tools_row()
-            with gr.Column():
+            with gr.Column(elem_classes=["toprow-compact-actions"]):
                 self.create_styles_ui()
+                with gr.Row(elem_classes=["toprow-compact-generate-row"]):
+                    self.submit_box.render()
+                    self.submit_box_rendered = True
 
     def create_inline_toprow_image(self):
-        if not self.is_compact:
+        if not self.is_compact or self.submit_box_rendered:
             return
 
         self.submit_box.render()
+        self.submit_box_rendered = True
 
     def _container_class(self) -> list[str]:
         if self.is_compact:
