@@ -213,6 +213,7 @@ def create_ui():
         # Feature flag: `opts.txt2img_show_future_tab`.
         # Default is OFF to preserve the classic Generation-first workflow.
         show_txt2img_future_tab = getattr(opts, "txt2img_show_future_tab", False)
+        output_panel = None
 
         dummy_component = gr.Textbox(visible=False)
         dummy_component_number = gr.Number(visible=False)
@@ -239,6 +240,7 @@ def create_ui():
                         with gr.Accordion("Advanced", open=False, elem_id="txt2img_future_advanced") as future_advanced_accordion:
                             pass
 
+                    # Future layout: render txt2img output panel directly in the Future tab.
                     output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
         else:
             future_prompt = toprow.prompt
@@ -380,7 +382,9 @@ def create_ui():
                     show_progress=False,
                 )
 
-            output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
+            if not show_txt2img_future_tab:
+                # Classic layout: keep txt2img output panel in the Generation flow.
+                output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
 
             txt2img_inputs = [
                 dummy_component,
