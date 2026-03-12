@@ -1,13 +1,7 @@
 @echo off
 
-:: set PYTHON=
-:: set GIT=
-:: set VENV_DIR=
-
-set COMMANDLINE_ARGS=
-
-:: --xformers --sage --uv
-:: --pin-shared-memory --cuda-malloc --cuda-stream
-:: --skip-python-version-check --skip-torch-cuda-test --skip-version-check --skip-prepare-environment --skip-install
+set "PYTHON=C:\Users\walva\AppData\Local\Programs\Python\Python312\python.exe"
+set "VENV_DIR=venv"
+set "COMMANDLINE_ARGS="
 
 call webui.bat
