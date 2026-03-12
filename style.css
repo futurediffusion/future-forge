@@ -356,27 +356,6 @@ input[type="checkbox"].input-accordion-checkbox {
     min-width: 14rem;
 }
 
-#txt2img_neg_prompt_row,
-#img2img_neg_prompt_row {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-}
-
-#txt2img_neg_prompt_container,
-#img2img_neg_prompt_container {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-#txt2img_neg_prompt_generate_wrap,
-#img2img_neg_prompt_generate_wrap {
-    flex: 0 0 14rem;
-    width: 14rem;
-    min-width: 14rem;
-    max-width: 14rem;
-}
-
 #txt2img_generate_box,
 #img2img_generate_box {
     justify-content: flex-start;
@@ -417,19 +396,6 @@ input[type="checkbox"].input-accordion-checkbox {
     #txt2img_actions_column,
     #img2img_actions_column {
         min-width: 100%;
-    }
-
-    #txt2img_neg_prompt_row,
-    #img2img_neg_prompt_row {
-        flex-direction: column;
-    }
-
-    #txt2img_neg_prompt_generate_wrap,
-    #img2img_neg_prompt_generate_wrap {
-        flex: 1 1 auto;
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
     }
 
     #txt2img_generate_box,
