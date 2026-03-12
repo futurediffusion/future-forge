@@ -54,8 +54,6 @@ class Toprow:
 
             self.create_styles_ui()
 
-            self.create_submit_box()
-
     def create_inline_toprow_prompts(self):
         if not self.is_compact:
             return
@@ -93,7 +91,14 @@ class Toprow:
                 self.prompt_img = gr.File(elem_id=f"{self.id_part}_prompt_image", file_count="single", type="binary", visible=False)
 
             with gr.Row(elem_id=f"{self.id_part}_neg_prompt_row", elem_classes=["prompt-row"]):
-                self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
+                if self.is_compact:
+                    self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
+                else:
+                    with gr.Column(scale=6, elem_id=f"{self.id_part}_neg_prompt_container"):
+                        self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
+
+                    with gr.Column(scale=2, elem_id=f"{self.id_part}_neg_prompt_generate_wrap"):
+                        self.create_submit_box()
 
         self.prompt_img.change(
             fn=modules.images.image_data,
