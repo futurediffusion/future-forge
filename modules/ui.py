@@ -216,6 +216,20 @@ def create_ui():
         extra_tabs = gr.Tabs(elem_id="txt2img_extra_tabs", elem_classes=["extra-networks"])
         extra_tabs.__enter__()
 
+        with gr.Tab("Future", id="txt2img_future"):
+            with ResizeHandleRow(equal_height=False):
+                with gr.Column(variant="compact", elem_id="txt2img_future_settings"):
+                    with FormRow(elem_id="txt2img_future_prompt_row"):
+                        future_prompt = gr.Textbox(label="Prompt", lines=3, elem_id="txt2img_future_prompt", elem_classes=["prompt"])
+                        future_generate = gr.Button("Generate", variant="primary", elem_id="txt2img_future_generate")
+                        _ = (future_prompt, future_generate)
+
+                    with gr.Accordion("Advanced", open=False):
+                        with FormRow():
+                            gr.Markdown("Future controls will be added here.")
+
+                output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
+
         with gr.Tab("Generation", id="txt2img_generation") as txt2img_generation_tab, ResizeHandleRow(equal_height=False):
             with ExitStack() as stack:
                 if shared.opts.txt2img_settings_accordion:
