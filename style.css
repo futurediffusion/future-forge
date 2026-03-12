@@ -361,6 +361,13 @@ input[type="checkbox"].input-accordion-checkbox {
     justify-content: flex-end;
 }
 
+#txt2img_results > #txt2img_generate_box,
+#img2img_results > #img2img_generate_box {
+    order: 99;
+    width: 100%;
+    margin-top: 0.75em;
+}
+
 #txt2img_generate,
 #img2img_generate {
     margin-left: auto;
