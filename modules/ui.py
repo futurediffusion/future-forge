@@ -217,6 +217,18 @@ def create_ui():
         extra_tabs.__enter__()
 
         with gr.Tab("Future", id="txt2img_future"):
+            with gr.Row(elem_id="txt2img_future_prompt_row", elem_classes=["prompt-row"]):
+                future_prompt = gr.Textbox(
+                    label="Prompt",
+                    elem_id="txt2img_future_prompt",
+                    show_label=False,
+                    lines=3,
+                    placeholder="Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)",
+                    elem_classes=["prompt"],
+                )
+            with gr.Row(elem_id="txt2img_future_generate_box", elem_classes=["generate-box"]):
+                future_submit = gr.Button("Generate", elem_id="txt2img_future_generate", variant="primary", tooltip="Right click generate forever menu")
+
             with ResizeHandleRow(equal_height=False):
                 with gr.Column(variant="compact", elem_id="txt2img_future_settings") as future_settings_column:
                     with gr.Accordion("Advanced", open=False, elem_id="txt2img_future_advanced") as future_advanced_accordion:
@@ -362,7 +374,7 @@ def create_ui():
 
             txt2img_inputs = [
                 dummy_component,
-                toprow.prompt,
+                future_prompt,
                 toprow.negative_prompt,
                 toprow.ui_styles.dropdown,
                 batch_count,
@@ -405,8 +417,8 @@ def create_ui():
                 show_progress=False,
             )
 
-            toprow.prompt.submit(**txt2img_args)
-            toprow.submit.click(**txt2img_args)
+            future_prompt.submit(**txt2img_args)
+            future_submit.click(**txt2img_args)
 
             def select_gallery_image(index):
                 index = int(index)
@@ -444,7 +456,7 @@ def create_ui():
             )
 
             txt2img_paste_fields = [
-                PasteField(toprow.prompt, "Prompt", api="prompt"),
+                PasteField(future_prompt, "Prompt", api="prompt"),
                 PasteField(toprow.negative_prompt, "Negative prompt", api="negative_prompt"),
                 PasteField(cfg_scale, "CFG scale", api="cfg_scale"),
                 PasteField(distilled_cfg_scale, "Distilled CFG Scale", api="distilled_cfg_scale"),
@@ -476,16 +488,16 @@ def create_ui():
                 parameters_copypaste.ParamBinding(
                     paste_button=toprow.paste,
                     tabname="txt2img",
-                    source_text_component=toprow.prompt,
+                    source_text_component=future_prompt,
                     source_image_component=None,
                 )
             )
 
             steps = scripts.scripts_txt2img.script("Sampler").steps
 
-            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
+            toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_token_counter), inputs=[future_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
             toprow.ui_styles.dropdown.change(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
-            toprow.token_button.click(fn=wrap_queued_call(update_token_counter), inputs=[toprow.prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
+            toprow.token_button.click(fn=wrap_queued_call(update_token_counter), inputs=[future_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.token_counter])
             toprow.negative_token_button.click(fn=wrap_queued_call(update_negative_prompt_token_counter), inputs=[toprow.negative_prompt, steps, toprow.ui_styles.dropdown], outputs=[toprow.negative_token_counter])
 
         extra_networks_ui = ui_extra_networks.create_ui(txt2img_interface, [txt2img_generation_tab], "txt2img")
