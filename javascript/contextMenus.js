@@ -124,50 +124,93 @@ let addContextMenuEventListener = initResponse[2];
 
 let regen_txt2img = null;
 let regen_img2img = null;
+let regen_txt2img_target_selector = null;
+
+const txt2imgGenerateSelectors = ["#txt2img_generate", "#txt2img_future_generate"];
+
+function getTxt2imgGenerateButton(preferredSelector = null) {
+    const selectors = preferredSelector
+        ? [preferredSelector, ...txt2imgGenerateSelectors.filter((s) => s !== preferredSelector)]
+        : txt2imgGenerateSelectors;
+
+    for (const selector of selectors) {
+        const button = gradioApp().querySelector(selector);
+        if (button) {
+            return {
+                selector,
+                button,
+            };
+        }
+    }
+
+    return null;
+}
 
 (function () {
     //Start example Context Menu Items
     let generateOnRepeat_txt2img = function () {
         if (regen_txt2img == null && regen_img2img == null) {
-            let generate = gradioApp().querySelector("#txt2img_generate");
+            let currentGenerate = getTxt2imgGenerateButton(regen_txt2img_target_selector);
+            if (!currentGenerate) {
+                return;
+            }
+
+            let generate = currentGenerate.button;
             let interrupt = gradioApp().querySelector("#txt2img_interrupt");
+            if (!interrupt) {
+                return;
+            }
+
             if (!interrupt.offsetParent) {
                 generate.click();
             }
 
             regen_txt2img = setInterval(function () {
                 if (interrupt.style.display == "none") {
+                    let nextGenerate = getTxt2imgGenerateButton(regen_txt2img_target_selector);
+                    if (!nextGenerate) {
+                        return;
+                    }
+
+                    generate = nextGenerate.button;
                     generate.click();
                     interrupt.style.display = "block";
                 }
             }, 500);
         }
     };
-    appendContextMenuOption(
-        "#txt2img_generate",
-        "Generate forever",
-        generateOnRepeat_txt2img,
-    );
+    txt2imgGenerateSelectors.forEach((selector) => {
+        appendContextMenuOption(selector, "Generate forever", function () {
+            regen_txt2img_target_selector = selector;
+            generateOnRepeat_txt2img();
+        });
+    });
     appendContextMenuOption(
         "#txt2img_interrupt",
         "Generate forever",
-        generateOnRepeat_txt2img,
+        function () {
+            regen_txt2img_target_selector = null;
+            generateOnRepeat_txt2img();
+        },
     );
 
     let cancel_regen_txt2img = function () {
         clearInterval(regen_txt2img);
         regen_txt2img = null;
+        regen_txt2img_target_selector = null;
     };
     appendContextMenuOption(
         "#txt2img_interrupt",
         "Cancel generate forever",
         cancel_regen_txt2img,
     );
-    appendContextMenuOption(
-        "#txt2img_generate",
-        "Cancel generate forever",
-        cancel_regen_txt2img,
-    );
+    txt2imgGenerateSelectors.forEach((selector) => {
+        appendContextMenuOption(
+            selector,
+            "Cancel generate forever",
+            cancel_regen_txt2img,
+        );
+    });
 
     let generateOnRepeat_img2img = function () {
         if (regen_txt2img == null && regen_img2img == null) {
