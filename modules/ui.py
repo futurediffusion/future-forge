@@ -245,9 +245,9 @@ def create_ui():
                 scripts.scripts_txt2img.prepare_ui()
 
                 for category in ordered_ui_categories():
-                    if category in {"prompt", "dimensions", "cfg"}:
+                    if category == "prompt":
                         category_parent = future_settings_column
-                    elif category in {"accordions", "batch", "override_settings", "scripts"}:
+                    elif category in {"dimensions", "cfg", "batch", "accordions", "override_settings", "scripts"}:
                         category_parent = future_advanced_accordion
                     else:
                         category_parent = txt2img_settings_column
