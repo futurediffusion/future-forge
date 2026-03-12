@@ -47,13 +47,11 @@ class Toprow:
             self.create_submit_box()
 
     def create_classic_toprow(self):
-        with gr.Column(scale=6):
-            self.create_prompts()
+        self.create_prompts()
 
         with gr.Column(scale=1, elem_id=f"{self.id_part}_actions_column"):
             self.create_submit_box()
             self.create_tools_row()
-
             self.create_styles_ui()
 
     def create_inline_toprow_prompts(self):
@@ -65,11 +63,8 @@ class Toprow:
         with gr.Row(elem_classes=["toprow-compact-stylerow"]):
             with gr.Column(elem_classes=["toprow-compact-tools"]):
                 self.create_tools_row()
-            with gr.Column(elem_classes=["toprow-compact-actions"]):
+            with gr.Column():
                 self.create_styles_ui()
-                with gr.Row(elem_classes=["toprow-compact-generate-row"]):
-                    self.submit_box.render()
-                    self.submit_box_rendered = True
 
     def create_inline_toprow_image(self):
         if not self.is_compact or self.submit_box_rendered:
@@ -78,22 +73,14 @@ class Toprow:
         self.submit_box.render()
         self.submit_box_rendered = True
 
-    def _container_class(self) -> list[str]:
-        if self.is_compact:
-            return ["prompt-container-compact"]
-        elif shared.opts.scrollable_prompt_box:
-            return ["prompt-container-scroll"]
-        else:
-            return []
-
     def create_prompts(self):
-        with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=self._container_class(), scale=6):
+        with gr.Column(elem_id=f"{self.id_part}_prompt_container", elem_classes=["prompt-container-compact"] if self.is_compact else [], scale=6):
             with gr.Row(elem_id=f"{self.id_part}_prompt_row", elem_classes=["prompt-row"]):
-                self.prompt = gr.Textbox(label="Prompt", elem_id=f"{self.id_part}_prompt", show_label=False, lines=3, placeholder="Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
-                self.prompt_img = gr.File(elem_id=f"{self.id_part}_prompt_image", file_count="single", type="binary", visible=False)
+                self.prompt = gr.Textbox(label="Prompt", elem_id=f"{self.id_part}_prompt", show_label=False, lines=3, placeholder="Prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"], value="")
+                self.prompt_img = gr.File(label="", elem_id=f"{self.id_part}_prompt_image", file_count="single", type="binary", visible=False)
 
             with gr.Row(elem_id=f"{self.id_part}_neg_prompt_row", elem_classes=["prompt-row"]):
-                self.negative_prompt = gr.Textbox(label="Negative Prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative Prompt\n(Ctrl+Enter to Generate ; Alt+Enter to Skip ; Esc to Interrupt)", elem_classes=["prompt"])
+                self.negative_prompt = gr.Textbox(label="Negative prompt", elem_id=f"{self.id_part}_neg_prompt", show_label=False, lines=3, placeholder="Negative prompt\n(Press Ctrl+Enter to generate, Alt+Enter to skip, Esc to interrupt)", elem_classes=["prompt"], value="")
 
         self.prompt_img.change(
             fn=modules.images.image_data,
