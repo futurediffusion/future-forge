@@ -208,9 +208,9 @@ def create_ui():
     scripts.scripts_txt2img.initialize_scripts(is_img2img=False)
 
     with gr.Blocks(analytics_enabled=False, head=canvas_head) as txt2img_interface:
-        toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
+        output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples)
 
-        output_panel = None
+        toprow = ui_toprow.Toprow(is_img2img=False, is_compact=shared.opts.compact_prompt_box)
 
         dummy_component = gr.Textbox(visible=False)
         dummy_component_number = gr.Number(visible=False)
@@ -223,9 +223,6 @@ def create_ui():
             extra_tabs.__enter__()
 
             with gr.Tab("Generation", id="txt2img_generation") as txt2img_generation_tab:
-                # Layout order for txt2img: Preview → Positive Prompt → Negative Prompt.
-                output_panel = create_output_panel("txt2img", opts.outdir_txt2img_samples, toprow)
-    
                 with ResizeHandleRow(equal_height=False):
                     with ExitStack() as stack:
                         if shared.opts.txt2img_settings_accordion:
