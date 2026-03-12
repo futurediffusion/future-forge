@@ -64,8 +64,20 @@
             onEdit(`${id_prompt}_BracketChecking`, textarea, 400, () => checkBrackets(textarea, counter));
     }
 
+    function setupTxt2imgPromptBracketChecking() {
+        const preferredId = opts.txt2img_show_future_tab ? 'txt2img_future_prompt' : 'txt2img_prompt';
+        const fallbackId = preferredId === 'txt2img_future_prompt' ? 'txt2img_prompt' : 'txt2img_future_prompt';
+        const promptId = gradioApp().getElementById(preferredId) ? preferredId : fallbackId;
+
+        if (!gradioApp().getElementById(promptId)) {
+            return;
+        }
+
+        setupBracketChecking(promptId, 'txt2img_token_counter');
+    }
+
     onUiLoaded(function () {
-        setupBracketChecking('txt2img_prompt', 'txt2img_token_counter');
+        setupTxt2imgPromptBracketChecking();
         setupBracketChecking('txt2img_neg_prompt', 'txt2img_negative_token_counter');
         setupBracketChecking('img2img_prompt', 'img2img_token_counter');
         setupBracketChecking('img2img_neg_prompt', 'img2img_negative_token_counter');
