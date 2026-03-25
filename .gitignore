@@ -15,7 +15,6 @@ __pycache__
 /config.json
 /config_states/
 /embeddings
-/extensions
 /gfpgan/weights/*.pth
 /interrogate
 /log
