@@ -204,10 +204,11 @@ def dtype_change(dtype: str, preset: str, save=True, refresh=True) -> bool:
 
 
 def get_a1111_ui_component(tab: str, label: str) -> gr.components.Component:
-    fields = infotext_utils.paste_fields[tab]["fields"]
+    fields = infotext_utils.paste_fields.get(tab, {}).get("fields", [])
     for f in fields:
         if f.label == label or f.api == label:
             return f.component
+    return None
 
 
 def forge_main_entry():
@@ -261,13 +262,55 @@ def forge_main_entry():
         ui_img2img_batch_size,
     ]
 
-    ui_forge_preset.change(on_preset_change, inputs=[ui_forge_preset], outputs=output_targets, queue=False, show_progress=False).success(
-        fn=_load_presets,
-        inputs=[ui_checkpoint, ui_vae, ui_forge_unet_dtype, ui_forge_preset],
-        queue=False,
-        show_progress=False,
-    ).then(js="clickLoraRefresh", fn=None, queue=False, show_progress=False)
-    Context.root_block.load(on_preset_change, inputs=[ui_forge_preset], outputs=output_targets, queue=False, show_progress=False)
+    def is_component_in_root(component: gr.components.Component) -> bool:
+        if component is None or Context.root_block is None:
+            return False
+        try:
+            return component._id in Context.root_block.blocks
+        except Exception:
+            return False
+
+    if not is_component_in_root(ui_forge_preset):
+        logger.warning("Skipping Forge preset UI bindings because preset component is not in the root block.")
+        refresh_model_loading_parameters()
+        return
+
+    indexed_output_targets = [(i, target) for i, target in enumerate(output_targets) if is_component_in_root(target)]
+    valid_output_targets = [target for _, target in indexed_output_targets]
+
+    def on_preset_change_filtered(preset: str):
+        updates = on_preset_change(preset)
+        return [updates[i] for i, _ in indexed_output_targets]
+
+    if valid_output_targets:
+        change_event = ui_forge_preset.change(
+            on_preset_change_filtered,
+            inputs=[ui_forge_preset],
+            outputs=valid_output_targets,
+            queue=False,
+            show_progress=False,
+        )
+
+        load_preset_inputs = [ui_checkpoint, ui_vae, ui_forge_unet_dtype, ui_forge_preset]
+        if all(x is not None for x in load_preset_inputs):
+            change_event.success(
+                fn=_load_presets,
+                inputs=load_preset_inputs,
+                queue=False,
+                show_progress=False,
+            ).then(js="clickLoraRefresh", fn=None, queue=False, show_progress=False)
+        else:
+            logger.warning("Skipping Forge preset load hook because required UI inputs are missing.")
+
+        Context.root_block.load(
+            on_preset_change_filtered,
+            inputs=[ui_forge_preset],
+            outputs=valid_output_targets,
+            queue=False,
+            show_progress=False,
+        )
+    else:
+        logger.warning("Skipping Forge preset UI bindings because no compatible output targets were found.")
 
     refresh_model_loading_parameters()
 

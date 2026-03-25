@@ -9,6 +9,7 @@
     --checkbox-label-gap: 0.25em 0.1em;
     --section-header-text-size: 12pt;
     --block-background-fill: transparent;
+    --desktop-ui-scale: 0.65;
 }
 
 .block.padded:not(.gradio-accordion) {
@@ -17,6 +18,13 @@
 
 div.gradio-container {
     max-width: unset !important;
+}
+
+@media screen and (min-width: 901px) {
+    div.gradio-container {
+        zoom: var(--desktop-ui-scale);
+        width: calc(100% / var(--desktop-ui-scale));
+    }
 }
 
 .hidden {
@@ -352,31 +360,74 @@ input[type="checkbox"].input-accordion-checkbox {
 
 #txt2img_actions_column,
 #img2img_actions_column {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
     gap: 0.5em;
     min-width: 14rem;
+    max-width: 20rem;
 }
 
 #txt2img_generate_box,
 #img2img_generate_box {
+    display: flex !important;
     justify-content: flex-start;
     width: 100%;
     min-width: 100%;
-    height: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    order: 1 !important;
+}
+
+#txt2img_tools,
+#img2img_tools {
+    order: 2 !important;
+    width: 100% !important;
+}
+
+#txt2img_styles_row,
+#img2img_styles_row {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 0.15em;
+}
+
+#txt2img_styles,
+#img2img_styles {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
 }
 
 #txt2img_results > #txt2img_generate_box,
 #img2img_results > #img2img_generate_box {
-    order: 99;
-    width: 100%;
-    margin-top: 0.75em;
+    display: none !important;
+}
+
+/* Keep your preferred order: results above prompts/actions. */
+#txt2img_results,
+#img2img_results {
+    order: 0 !important;
+}
+
+#txt2img_toprow,
+#img2img_toprow {
+    order: 1 !important;
+}
+
+#txt2img_advanced_accordion,
+#img2img_advanced_accordion {
+    order: 2 !important;
 }
 
 #txt2img_generate,
 #img2img_generate {
+    display: block !important;
     margin-left: 0;
     width: 100%;
     min-width: 100%;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    min-height: 3.2em !important;
+    max-height: 3.2em;
 }
 
 @media screen and (min-width: 901px) {
@@ -479,6 +530,34 @@ div#extras_scale_to_tab div.form {
     justify-content: center;
 }
 
+/* Compact action bar under results (txt2img/img2img/extras). */
+#image_buttons_txt2img,
+#image_buttons_img2img,
+#image_buttons_extras {
+    gap: 0.3em !important;
+    margin: 0.2em 0 0.15em 0 !important;
+    padding: 0 !important;
+    min-height: 2em !important;
+}
+
+#image_buttons_txt2img .gradio-button.tool,
+#image_buttons_img2img .gradio-button.tool,
+#image_buttons_extras .gradio-button.tool {
+    min-width: 1.8em !important;
+    max-width: 1.8em !important;
+    height: 1.8em !important;
+    border-radius: 0.45em !important;
+    font-size: 0.9em !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+}
+
+#txt2img_results_panel,
+#img2img_results_panel,
+#extras_results_panel {
+    padding-bottom: 0.25em !important;
+}
+
 .infotext {
     overflow-wrap: break-word;
 }
@@ -538,11 +617,20 @@ div.toprow-compact-tools {
 
 #quicksettings>button {
     margin: auto 0;
-    margin-top: 1.5em;
+    margin-top: 1.2em;
+}
+
+#quicksettings>button.gradio-button.tool {
+    min-width: 2em !important;
+    max-width: 2em !important;
+    height: 2.15em !important;
+    border-radius: 0.45em !important;
+    padding: 0 !important;
+    font-size: 0.92em !important;
 }
 
 #quicksettings div span[data-testid="block-info"] {
-    margin-bottom: 0.25em !important;
+    margin-bottom: 0.12em !important;
 }
 
 #quicksettings .icon-wrap {
@@ -553,6 +641,22 @@ div.toprow-compact-tools {
 #quicksettings>div.gradio-dropdown input {
     cursor: pointer;
     padding-right: 1em;
+    min-height: 2.35em !important;
+    line-height: 1.2 !important;
+    padding-top: 0.2em !important;
+    padding-bottom: 0.2em !important;
+}
+
+#quicksettings>div.gradio-dropdown .wrap-inner.wrap-inner.wrap-inner {
+    min-height: 2.45em !important;
+    padding-top: 0.1em !important;
+    padding-bottom: 0.1em !important;
+}
+
+#forge_ui_preset div.wrap-inner,
+#setting_sd_model_checkpoint div.wrap-inner,
+#forge_ui_dtype div.wrap-inner {
+    min-height: 2.45em !important;
 }
 
 #quicksettings>div.model_selection ul {
@@ -610,13 +714,13 @@ div.toprow-compact-tools {
 
 #setting_sd_modules div.wrap-inner {
     min-width: 20vw;
-    height: 40px !important;
+    height: 34px !important;
     cursor: pointer;
     padding: 0em 2em 0em 0.5em;
 }
 
 #setting_sd_modules div.token {
-    height: 32px;
+    height: 26px;
     border-radius: 4px;
     margin: auto;
 }
@@ -1861,6 +1965,17 @@ body.resizing .resize-handle {
 
 .prompt textarea[disabled] {
     opacity: 0.25 !important;
+}
+
+/* Compact prompt fields (~15% less height) without clipping text. */
+#txt2img_prompt textarea,
+#txt2img_neg_prompt textarea,
+#img2img_prompt textarea,
+#img2img_neg_prompt textarea {
+    min-height: 5.1em !important;
+    line-height: 1.2 !important;
+    padding-top: 0.28em !important;
+    padding-bottom: 0.28em !important;
 }
 
 #txt2img_enable_mahiro,

@@ -3,14 +3,7 @@
     let isSetupForMobile = false;
 
     function isMobile() {
-        for (let tab of ["txt2img", "img2img"]) {
-            let imageTab = gradioApp().getElementById(tab + '_results');
-            if (imageTab && imageTab.offsetParent && imageTab.offsetLeft == 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return window.matchMedia("(max-width: 900px)").matches;
     }
 
     function reportWindowSize() {
@@ -23,10 +16,15 @@
 
         for (let tab of ["txt2img", "img2img"]) {
             let button = gradioApp().getElementById(tab + '_generate_box');
-            let target = gradioApp().getElementById(currentlyMobile ? tab + '_results' : tab + '_actions_column');
-            target.insertBefore(button, target.firstElementChild);
+            let target = gradioApp().getElementById(tab + '_actions_column');
+            if (button && target && button.parentElement !== target) {
+                target.insertBefore(button, target.firstElementChild);
+            }
 
-            gradioApp().getElementById(tab + '_results').classList.toggle('mobile', currentlyMobile);
+            let results = gradioApp().getElementById(tab + '_results');
+            if (results) {
+                results.classList.toggle('mobile', currentlyMobile);
+            }
         }
     }
 

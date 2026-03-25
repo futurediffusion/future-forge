@@ -228,3 +228,18 @@ class ScriptPostprocessingRunner:
         for script in self.scripts_in_preferred_order():
             script.image_changed()
 
+
+def list_scripts():
+    """
+    Backward-compatibility shim for older UI code paths that call
+    modules.scripts_postprocessing.list_scripts().
+    """
+    import modules.scripts
+
+    runner = modules.scripts.scripts_postproc
+    if runner is None:
+        runner = ScriptPostprocessingRunner()
+        modules.scripts.scripts_postproc = runner
+
+    return runner.scripts_in_preferred_order()
+

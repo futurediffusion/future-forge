@@ -148,13 +148,14 @@ function setSubmitButtonsVisibility(
     showSkip,
     showInterrupting,
 ) {
-    gradioApp().getElementById(tabname + "_interrupt").style.display =
-        showInterrupt ? "block" : "none";
-    gradioApp().getElementById(tabname + "_skip").style.display = showSkip
-        ? "block"
-        : "none";
-    gradioApp().getElementById(tabname + "_interrupting").style.display =
-        showInterrupting ? "block" : "none";
+    const interrupt = gradioApp().getElementById(tabname + "_interrupt");
+    const skip = gradioApp().getElementById(tabname + "_skip");
+    const interrupting = gradioApp().getElementById(tabname + "_interrupting");
+
+    if (interrupt) interrupt.style.display = showInterrupt ? "block" : "none";
+    if (skip) skip.style.display = showSkip ? "block" : "none";
+    if (interrupting)
+        interrupting.style.display = showInterrupting ? "block" : "none";
 }
 
 function showSubmitButtons(tabname, show) {
